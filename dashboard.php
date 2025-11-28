@@ -105,16 +105,14 @@ $tarefas = $stmt_busca->fetchall(PDO::FETCH_ASSOC)
                 <div>
                     <?php if ($tarefa['status'] == 'pendente'): ?>
 
-                        <a href="concluir.php?id=<?php echo $tarefa['id']; ?>" class="btn btn-sm btn-success" title="Concluir">Concluir
-                        </a>
+                        <a href="concluir.php?id=<?php echo $tarefa['id']; ?>" class="btn btn-sm btn-success" title="Concluir">Concluir</a>
                     <?php else: ?>
 
-                        <span class="badge bg-success">Feito!</span>
+                        <span class="btn btn-sm btn-success">Feito!</span>
 
                     <?php endif; ?>
 
-                    <a href="excluir.php?id=<?php echo $tarefa['id']; ?>" class= "btn btn-sm btn-danger" onclick="return confirm('Tem certeza?');">Excluir
-                    </a>
+                    <a href="excluir.php?id=<?php echo $tarefa['id']; ?>" class= "btn btn-sm btn-danger" onclick="return confirm('Tem certeza?');">Excluir</a>
                 </div>
             </div>
 

@@ -1,7 +1,7 @@
 <?php
 
 $host = 'localhost';
-$dbname = 'todo_project';
+$dbname = 'banco_desafiowb';
 $username =  'root';
 $password = '';
 
