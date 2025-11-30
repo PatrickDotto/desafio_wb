@@ -55,12 +55,12 @@ $tarefas = $stmt_busca->fetchall(PDO::FETCH_ASSOC)
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Olá, <?php echo $_SESSION['usuario_nome']; ?>!</h1>
-        <a href="login.php" class="btn-danger">Sair</a>
+        <a href="logout.php" class="btn btn-danger">Sair</a>
 </div>
 
 <div class="card shadow-sm mb-5">
     <div class="card-body">
-        <h5 class="card-tittle">Nova Tarefa</h5>
+        <h5 class="card-title">Nova Tarefa</h5>
 
         <form method="POST">
             <input type="hidden" name="nova_tarefa" value="1">
@@ -106,7 +106,7 @@ $tarefas = $stmt_busca->fetchall(PDO::FETCH_ASSOC)
                     <?php if ($tarefa['status'] == 'pendente'): ?> 
                         <a href="concluir.php?id=<?php echo $tarefa['id']; ?>" class="btn btn-sm btn-success" title="Concluir">Concluir</a>
                     <?php else: ?>
-                        <a class="btn btn-sm btn-success">Concluir</a>
+                        <span class="badge bg-secondary p-2">Concluída</span>
                     <?php endif; ?>
 
                     <a href="editar.php?id=<?php echo $tarefa['id']; ?>" class="btn btn-sm btn-warning">Editar</a>
