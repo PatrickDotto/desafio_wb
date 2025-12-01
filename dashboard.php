@@ -35,11 +35,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['nova_tarefa'])) {
     }
 }
 
-$sql_busca = "SELECT * FROM tarefas WHERE usuario_id = :usuario_id ORDER BY data_criacao DESC";
+$sql_busca = "SELECT * FROM tarefas WHERE usuario_id = :usuario_id";
+$params = [':usuario_id' => $_SESSION['usuario_id']];
+
+if (isset($_GET['busca']) && !empty($_GET['busca'])) {
+    $sql_busca .= " AND titulo LIKE :busca";
+    $params[':busca'] = '%' . $_GET['busca'] . '%';
+}
+
+if (isset($_GET['filtro']) && !empty($_GET['filtro'])) {
+    $sql_busca .= " AND status = :status";
+    $params[':status'] = $_GET['filtro'];
+}
+
+$sql_busca .= " ORDER BY data_criacao DESC";
 $stmt_busca = $pdo->prepare($sql_busca);
-$stmt_busca->execute([':usuario_id' => $_SESSION['usuario_id']]);
-$tarefas = $stmt_busca->fetchall(PDO::FETCH_ASSOC)
-;
+$stmt_busca->execute($params);
+$tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -83,6 +95,29 @@ $tarefas = $stmt_busca->fetchall(PDO::FETCH_ASSOC)
 </div>
 </div>
 <h3>Sua lista</h3>
+
+<form method="GET" class="row g-2 mb-3 align-items-center">
+
+    <div class="col-auto">
+        <input type="text" name="busca" class="form-control" placeholder="Pesquisar título..." value="<?php echo isset($_GET['busca']) ? $_GET['busca']: ''; ?>">
+    </div>
+
+    <div class="col-auto">
+        <select name="filtro" class="form-select">
+            <option value="">Todos os status</option>
+            <option value="pendente" <?php echo (isset($_GET['filtro']) && $_GET['filtro'] == 'pendente') ? 'selected' : ''; ?>>Pendente</option>
+            <option value="concluida" <?php echo (isset($_GET['filtro']) && $_GET['filtro'] == 'concluida') ? 'selected' : ''; ?>>Concluída</option>
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary"> Filtrar</button>
+    </div>
+
+    <div class="col-auto">
+        <a href="dashboard.php" class="btn btn-outline-secondary">Limpar</a>
+    </div>
+</form>
 <hr>
 
     <div class="list-group">
