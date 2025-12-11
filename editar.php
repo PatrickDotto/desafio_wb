@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <a href="dashboard.php" class="btn btn-secondary">Cancelar</a>
+                        <a href="dashboard.php" class="btn btn-danger">Cancelar</a>
                         <button type="submit" class="btn btn-success">Salvar Alterações</button>
                     </div>
                 </form>

@@ -60,6 +60,7 @@ $tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minhas Tarefas</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -139,7 +140,7 @@ $tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
 
                 <div>
                     <?php if ($tarefa['status'] == 'pendente'): ?> 
-                        <a href="concluir.php?id=<?php echo $tarefa['id']; ?>" class="btn btn-sm btn-success" title="Concluir">Concluir</a>
+                        <a href="#" class="btn btn-sm btn-success btn-concluir" data-id="<?php echo $tarefa['id']; ?>"> Concluir</a>
                     <?php else: ?>
                         <span class="badge bg-secondary p-2">Concluída</span>
                     <?php endif; ?>
@@ -157,5 +158,25 @@ $tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
+<script>
+    $(document).ready(function() {
+        $('.btn-concluir').click(function(e) {
+            e.preventDefault();
+
+            var botao = $(this);
+            var id_tarefa = botao.data('id');
+
+            $.post('concluir_ajax.php', {id: id_tarefa}, function(resposta) {
+
+                if(resposta.sucesso) {
+                    botao.parent().prepend('<span class="badge bg-secondary p-2">Concluída</span>');
+                    botao.remove();
+                } else {
+                    alert('Erro ao concluir tarefa');
+                }
+            }, 'json');
+        });
+    });
+</script>
 </body>
 </html>
