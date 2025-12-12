@@ -147,7 +147,7 @@ $tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
 
                     <a href="editar.php?id=<?php echo $tarefa['id']; ?>" class="btn btn-sm btn-warning">Editar</a>
 
-                    <a href="excluir.php?id=<?php echo $tarefa['id']; ?>" class= "btn btn-sm btn-danger" onclick="return confirm('Tem certeza?');">Excluir</a>
+                    <a href="#" class="btn btn-sm btn-danger btn-excluir" data-id="<?php echo $tarefa['id']; ?>">Excluir</a>
                 </div>
             </div>
 
@@ -177,6 +177,29 @@ $tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
             }, 'json');
         });
     });
+
+    $('.btn-excluir').click(function(e) {
+            e.preventDefault();
+
+            var botao = $(this);
+            var id_tarefa = botao.data('id');
+            var linha_tarefa = botao.closest('.list-group-item');
+
+            if (confirm('Tem certeza que você quer excluir essa tarefa?')) {
+                
+                $.post('excluir_ajax.php', { id: id_tarefa }, function(resposta) {
+                    if (resposta.sucesso) {
+                        linha_tarefa.fadeOut(500, function() {
+                            $(this).remove();
+                        });
+                    } else {
+                        alert('Erro ao excluir tarefa.');
+                    }
+                }, 'json');
+            }
+        });
 </script>
 </body>
+<footer class="mt-5 py-4">
+</footer>
 </html>
