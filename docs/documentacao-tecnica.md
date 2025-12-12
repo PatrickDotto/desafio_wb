@@ -1,72 +1,69 @@
-# 🛠️ Documentação Técnica - Gerenciador de Tarefas
+# Documentação Técnica
 
-## 1. Visão Geral da Arquitetura
-O projeto foi desenvolvido seguindo o padrão MVC simplificado, sem uso de frameworks, focando em PHP 8 puro e manipulação direta do banco de dados via PDO para garantir performance e segurança.
+## 1. Visão Geral
+O projeto foi desenvolvido segundo o padrão que foi pedido, sem uso de frameworks, utilizando PHP 8 puro e manipulação no banco de dados com PDO para ter a melhor experiência possível.
 
 **Tecnologias:**
 - **Backend:** PHP 8.2
-- **Banco de Dados:** MySQL / MariaDB
-- **Frontend:** HTML5, CSS3 (Bootstrap 5), JavaScript (jQuery)
+- **Banco de Dados:** MySQL
+- **Frontend:** HTML5, CSS3, Bootstrap 5, JavaScript (jQuery)
 - **Controle de Versão:** Git
 
 ---
 
 ## 2. Estrutura do Banco de Dados
 
-O banco de dados consiste em duas tabelas relacionais (`usuarios` e `tarefas`), com integridade referencial garantida (Foreign Key).
+O banco de dados tem duas tabelas relacionais ('usuarios' e 'tarefas'), com sua referencia garantida (foreign key).
 
-### Tabela: `usuarios`
+### Tabela: 'usuarios'
 Armazena as credenciais de acesso.
-- `id` (INT, PK, AUTO_INCREMENT): Identificador único.
-- `nome` (VARCHAR): Nome de exibição.
-- `email` (VARCHAR, UNIQUE): Login do usuário.
-- `senha` (VARCHAR): Hash de segurança (gerado via `password_hash`).
+- 'id' (INT, PK, AUTO_INCREMENT): Identificador de usuário.
+- 'nome' (VARCHAR): Nome do usuário.
+- 'email' (VARCHAR, UNIQUE): Login do usuário.
+- 'senha' (VARCHAR): Senha hash de segurança ('password_hash').
 
-### Tabela: `tarefas`
-Armazena as atividades de cada usuário.
-- `id` (INT, PK, AUTO_INCREMENT): Identificador da tarefa.
-- `usuario_id` (INT, FK): Referência ao dono da tarefa (ON DELETE CASCADE).
-- `titulo` (VARCHAR): Título da atividade.
-- `descricao` (TEXT): Detalhes opcionais.
-- `status` (ENUM): 'pendente' ou 'concluida'.
-- `data_limite` (DATE): Prazo final.
-- `data_criacao`: Timestamp automático.
+### Tabela: 'tarefas'
+Armazena as atividades do usuário.
+- 'id' (INT, PK, AUTO_INCREMENT): Identificador de tarefa.
+- 'usuario_id' (INT, FK): Dono da tarefa. (ON DELETE CASCADE).
+- 'titulo' (VARCHAR): Título da tarefa.
+- 'descricao' (TEXT): Descrição da tarefa (opcional).
+- 'status' (ENUM): 'pendente' ou 'concluida'.
+- 'data_limite' (DATE): Prazo final.
+- 'data_criacao': Timestamp automático.
 
----
+------------
 
-## 3. Detalhes de Implementação (PHP)
+## 3. Detalhes do Projeto (PHP)
 
-### Conexão e Segurança (`conexao.php`)
+### Conexão e Segurança ('conexao.php')
 - Uso da classe **PDO** para conexão com o banco.
-- Tratamento de exceções com `try/catch`.
-- **Prevenção de SQL Injection:** Todas as queries utilizam *Prepared Statements* (`:parametro`).
+- **Prevenção de SQL Injection:** Todas as queries utilizam *Prepared Statements* (':parametro').
 
-### Autenticação (`login.php` / `cadastro.php`)
-- As senhas nunca são salvas em texto puro. Utilizamos `password_hash()` no cadastro e `password_verify()` no login (Algoritmo Bcrypt padrão do PHP).
-- Controle de acesso via **Sessões PHP** (`$_SESSION`). Páginas restritas verificam `isset($_SESSION['usuario_id'])` no topo do arquivo.
+### Autenticação ('login.php' / 'cadastro.php')
+- As senhas são criptografadas utilizando 'password_hash()' no cadastro e 'password_verify()' no login.
+- O acesso é controlado através de **Sessões PHP** ('$_SESSION'). As páginas restritas são protegidas por um controle: 'isset($_SESSION['usuario_id'])' no topo do arquivo.
 
 ### AJAX e Interatividade
-Para cumprir o requisito de interatividade sem recarregamento (SPA feel), implementamos jQuery nas ações de **Concluir** e **Excluir** tarefas.
+Para a tela interativa ser mais eficiente e rápida, usei jQuery nas ações de **Concluir** e **Excluir** tarefas.
 
 **Fluxo do AJAX:**
-1. O usuário clica no botão (ex: `.btn-concluir`).
-2. O evento `e.preventDefault()` bloqueia o reload.
-3. O ID da tarefa é capturado via atributo `data-id`.
-4. Uma requisição `$.post` é enviada para o script PHP correspondente (ex: `concluir_ajax.php`).
-5. O PHP processa a alteração no banco e retorna um JSON `{ "sucesso": true }`.
-6. O JavaScript recebe o retorno e manipula o DOM (remove o botão ou a linha da tabela) instantaneamente.
 
----
+1. O usuário clica no botão de concluir ou excluir.
+2. O evento 'e.preventDefault()' bloqueia o reload.
+3. O ID da tarefa é requisitado pelo 'data-id'.
+4. Uma requisição '$.post' é enviada para o PHP utilizado: concluir_ajax.php ou excluir_ajax.php.
+5. O PHP recebe a mudança no banco e retorna um JSON '{ "sucesso": true }'.
+6. O JavaScript recebe esse retorno e altera o DOM (remove o botão ou a linha da tabela) na hora.
+
+-------------
 
 ## 4. Decisões Técnicas
-- **Input Hidden:** Utilizado para diferenciar ações de formulário e passar IDs de forma segura.
-- **Bootstrap 5:** Escolhido para garantir responsividade total (Mobile-First) sem necessidade de CSS customizado complexo.
-- **Estrutura de Pastas:** Mantivemos a estrutura plana (arquivos na raiz) para simplicidade de execução em ambientes locais como XAMPP, facilitando a avaliação.
+- **Input Hidden:** Usado para distinguir ações de formulário e passar os IDs de forma segura.
+- **Bootstrap 5:** A melhor e mais prática, deixa a parte do frontend mais dinâmica, objetiva e bonita, com a vantagem de ser mais prática, sem necessidade de CSS customizado.
+- **Estrutura das Pastas:** Os arquivos se encontram na raíz da pasta 'desafio_wb' para simplificar a execução em ambientes locais como o XAMPP, facilitando e agilizando a parte de abrir e avaliar os arquivos, com exceção do manual funcional e documentação técnica que se encontra dentro da pasta 'docs', que fica na raíz do arquivo.
 
----
+-------------
 
 ## 5. Configuração Local
-Para rodar este projeto:
-1. Importe o script `.sql` no seu SGBD.
-2. Configure as credenciais em `conexao.php` (padrão: `root`, sem senha).
-3. Certifique-se de que a extensão `pdo_mysql` está habilitada no `php.ini`.
+Para rodar o projeto, importe o script .sql no seu sistema que gerencia o banco de dados, configure as credenciais em conexao.php com o padrão root, sem senha. E por fim, confira se a extensão pdo_mysql está habilidada no php.ini.
