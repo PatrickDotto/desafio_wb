@@ -35,25 +35,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['nova_tarefa'])) {
     }
 }
 
-$sql_busca = "SELECT * FROM tarefas WHERE usuario_id = :usuario_id";
+$itens_por_pagina = 5;
+$pagina_atual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+if ($pagina_atual < 1) $pagina_atual = 1;
+$offset = ($pagina_atual - 1) * $itens_por_pagina;
+
+$sql_base = "FROM tarefas WHERE usuario_id = :usuario_id";
 $params = [':usuario_id' => $_SESSION['usuario_id']];
 
 if (isset($_GET['busca']) && !empty($_GET['busca'])) {
-    $sql_busca .= " AND titulo LIKE :busca";
+    $sql_base .= " AND titulo LIKE :busca";
     $params[':busca'] = '%' . $_GET['busca'] . '%';
 }
 
 if (isset($_GET['filtro']) && !empty($_GET['filtro'])) {
-    $sql_busca .= " AND status = :status";
+    $sql_base .= " AND status = :status";
     $params[':status'] = $_GET['filtro'];
 }
 
-$sql_busca .= " ORDER BY data_criacao DESC";
+$stmt_total = $pdo->prepare("SELECT COUNT(*) " . $sql_base);
+$stmt_total->execute($params);
+$total_tarefas = $stmt_total->fetchColumn();
+$total_paginas = ceil($total_tarefas / $itens_por_pagina);
+
+$sql_busca = "SELECT * " . $sql_base . " ORDER BY data_criacao DESC LIMIT $itens_por_pagina OFFSET $offset";
 $stmt_busca = $pdo->prepare($sql_busca);
 $stmt_busca->execute($params);
 $tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -124,6 +133,8 @@ $tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
     <div class="list-group">
         <?php foreach($tarefas as $tarefa): ?>
 
+        
+
             <div class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                     <h5><?php echo htmlspecialchars($tarefa['titulo']); ?></h5>
@@ -135,6 +146,11 @@ $tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
                             ? date('d/m/Y', strtotime($tarefa['data_limite'])) 
                             : 'Sem data' 
                         ?>
+                    </small>
+
+                    <br>
+                    <small class="text-muted">
+                        Criada em: <?= date('d/m/Y H:i', strtotime($tarefa['data_criacao'])) ?>
                     </small>
                 </div>
 
@@ -151,12 +167,32 @@ $tarefas = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
 
-        <?php endforeach; ?>
-        <?php if(count($tarefas) == 0): ?>
+       <?php if(count($tarefas) == 0): ?>
             <p class="text-center text-muted">Nenhuma tarefa ainda.</p>
         <?php endif; ?>
     </div>
-</div>
+
+    <?php if ($total_paginas > 1): ?>
+    <nav>
+        <ul class="pagination justify-content-center mt-4">
+            <li class="page-item <?= ($pagina_atual <= 1) ? 'disabled' : '' ?>">
+                <a class="page-link" href="?pagina=<?= $pagina_atual - 1 ?>&busca=<?= $_GET['busca'] ?? '' ?>&filtro=<?= $_GET['filtro'] ?? '' ?>">Anterior</a>
+            </li>
+            <?php for($i = 1; $i <= $total_paginas; $i++): ?>
+                <li class="page-item <?= ($pagina_atual == $i) ? 'active' : '' ?>">
+                    <a class="page-link" href="?pagina=<?= $i ?>&busca=<?= $_GET['busca'] ?? '' ?>&filtro=<?= $_GET['filtro'] ?? '' ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+            <li class="page-item <?= ($pagina_atual >= $total_paginas) ? 'disabled' : '' ?>">
+                <a class="page-link" href="?pagina=<?= $pagina_atual + 1 ?>&busca=<?= $_GET['busca'] ?? '' ?>&filtro=<?= $_GET['filtro'] ?? '' ?>">Próxima</a>
+            </li>
+        </ul>
+    </nav>
+    <?php endif; ?>
+
+</div> <footer class="mt-5 py-4 text-center text-muted">
+    <p>&copy; 2025 - Gerenciador de Tarefas</p>
+</footer>
 
 <script>
     $(document).ready(function() {
